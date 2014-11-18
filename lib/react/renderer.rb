@@ -32,6 +32,7 @@ module React
         var global = global || this;
         var self = self || this;
         var window = window || this;
+        var navigator = navigator || this;
 
         var console = global.console || {};
         ['error', 'log', 'info', 'warn'].forEach(function (fn) {
@@ -61,7 +62,7 @@ module React
     def render(component, args={})
       jscode = <<-JS
         function() {
-          return React.renderComponentToString(#{component}(#{args.to_json}));
+          return React.renderToString(#{component}(#{args.to_json}));
         }()
       JS
       context.eval(jscode).html_safe
