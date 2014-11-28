@@ -1,21 +1,5 @@
 require 'connection_pool'
 
-#module ModuleImport
-#  def self.import(path)
-#    self.send(:remove_const, "Import") if self.const_defined?('Import')
-#    imported_module = self.const_set "Import", Module.new
-
-#    code = File.read(path)
-#    imported_module.module_eval(code)
-
-#    unless imported_module.const_defined?('EXPORTS')
-#      raise "File at #{path} doesn't export anything, use EXPORTS"
-#    end
-
-#    return imported_module::EXPORTS
-#  end
-#end
-
 module React  
   class Renderer
 
@@ -43,32 +27,28 @@ module React
       end
     end
 
-    #def self.setup_window      
-      #var jsdom = require("jsdom");
-      #res = ModuleImport.import('./node_modules/jsdom/lib/jsdom.js')
-    #end
-
     def self.setup_combined_js
-      #setup_window
-      #abort ENV.inspect
       <<-CODE
         var jsdom = require('jsdom');
-
         var global = global || this;
         var self = self || this;
-        var window = self || this;        
-        var navigator = navigator || this;
 
-        var console = global.console || {};
-        ['error', 'log', 'info', 'warn'].forEach(function (fn) {
-          if (!(fn in console)) {
-            console[fn] = function () {};
-          }
+        var html = '<html><head></head><body></body></html>';
+
+        jsdom.env(html, function(err, window) {
+          var console = global.console || {};
+          var document = window.document;
+          var navigator = window.navigator;
+          ['error', 'log', 'info', 'warn'].forEach(function (fn) {
+            if (!(fn in console)) {
+              console[fn] = function () {};
+            }
+          });
+
+          #{@@react_js.call};
+          var React = global.React;
+          #{@@components_js.call};
         });
-
-        #{@@react_js.call};
-        React = global.React;
-        #{@@components_js.call};
       CODE
     end
 
@@ -90,6 +70,7 @@ module React
 
     def context
       @context ||= ExecJS.compile_async(self.class.combined_js)
+      #@context ||= ExecJS.compile(self.class.combined_js)
     end
 
     def render(component, args={})
@@ -99,7 +80,7 @@ module React
           return React.renderToString(React.createElement(#{component}, #{react_props}));
         }()
       JS
-      context.eval(jscode).html_safe
+      context.eval(jscode).html_safe      
     rescue ExecJS::ProgramError => e
       raise PrerenderError.new(component, react_props, e)
     end

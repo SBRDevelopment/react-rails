@@ -28,10 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '>= 3.1'
   s.add_dependency 'react-source', '0.12'
   s.add_dependency 'connection_pool'
-  #s.add_dependency 'commonjs', '~> 0.2.7'
-  #s.add_dependency 'execjs-async'
-  #s.add_dependency 'sprockets-commonjs'
-
+  
 
   s.files = Dir[
     'lib/**/*',
