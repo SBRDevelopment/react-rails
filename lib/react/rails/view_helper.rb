@@ -6,7 +6,14 @@ module React
       # are used by react_ujs to actually instantiate the React component
       # on the client.
       #
-      def react_component(name, args = {}, options = {}, &block)
+      def react_component(name, args = {}, options = {}, initial_state={}, &block)
+        React::Renderer.initial_state(initial_state)
+        if options[:prerender] == true
+          args[:prerender] = true
+        else
+          args[:prerender] = false
+        end
+
         options = {:tag => options} if options.is_a?(Symbol)
         block = Proc.new{concat React::Renderer.render(name, args)} if options[:prerender] == true
 
@@ -15,6 +22,7 @@ module React
           data[:react_class] = name
           data[:react_props] = React::Renderer.react_props(args) unless args.empty?
         end
+
         html_tag = html_options[:tag] || :div
         
         # remove internally used properties so they aren't rendered to DOM
@@ -22,7 +30,6 @@ module React
         
         content_tag(html_tag, '', html_options, &block)
       end
-
     end
   end
 end
