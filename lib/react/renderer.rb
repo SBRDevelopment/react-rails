@@ -85,6 +85,7 @@ module React
     def render(component, args={})
       # sends prerender flag as prop to the react component to
       initial_state = React::Renderer.react_props(@@state)
+      #abort initial_state.inspect
       react_props = React::Renderer.react_props(args)
       
       func = "renderToString"
@@ -96,7 +97,7 @@ module React
           return React.#{func}(React.createElement(#{component}, #{react_props}));
         }()
       JS
-
+      #abort "stop here"
       context(initial_state).eval(jscode).html_safe
     rescue ExecJS::ProgramError => e
       raise PrerenderError.new(component, react_props, e)
