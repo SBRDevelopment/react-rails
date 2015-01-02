@@ -67,8 +67,9 @@ module React
     end
 
     def context(initial_state="")
+      #abort initial_state.inspect
       final_combined_js = <<-CODE
-        var initial_state = #{initial_state};
+        var initial_state = {};
 
         #{self.class.combined_js}
       CODE
@@ -82,9 +83,22 @@ module React
       @@state = state
     end
 
+    #def self.logInFile(content)
+    #  filecontent = ""
+    #  File.open("test.txt",'r') do |fileb|
+    #    while c = fileb.gets
+    #      filecontent = "#{filecontent}#{c}"
+    #    end
+    #  end
+    #  File.open("test.txt",'w') do |filea|
+    #      filea.puts "#{filecontent}\n****************************************************************\n****************************************************************\n#{content}"
+    #  end
+    #end
+
     def render(component, args={})
       # sends prerender flag as prop to the react component to
       initial_state = React::Renderer.react_props(@@state)
+
       #abort initial_state.inspect
       react_props = React::Renderer.react_props(args)
       
@@ -92,12 +106,14 @@ module React
       if args[:prerender] == true
         func = "renderToStaticMarkup"
       end
-      jscode = <<-JS
+      jscode = <<-JS    
+
         function() {
+          initial_state = #{initial_state};
           return React.#{func}(React.createElement(#{component}, #{react_props}));
         }()
       JS
-      #abort "stop here"
+      
       context(initial_state).eval(jscode).html_safe
     rescue ExecJS::ProgramError => e
       raise PrerenderError.new(component, react_props, e)
