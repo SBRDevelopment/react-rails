@@ -66,8 +66,8 @@ module React
       end
     end
 
-    def context(initial_state="")
-      #abort initial_state.inspect
+    def context
+      
       final_combined_js = <<-CODE
         var initial_state = {};
 
@@ -97,24 +97,35 @@ module React
 
     def render(component, args={})
       # sends prerender flag as prop to the react component to
-      initial_state = React::Renderer.react_props(@@state)
+      if @@state
+        initial_state = React::Renderer.react_props(@@state)
+      end
 
-      #abort initial_state.inspect
       react_props = React::Renderer.react_props(args)
-      
+
       func = "renderToString"
       if args[:prerender] == true
         func = "renderToStaticMarkup"
       end
-      jscode = <<-JS    
 
+      #if component != "SBR.Page"
+      #  abort component.inspect
+      #end
+
+      js_initial_state = ""
+      if initial_state
+        js_initial_state = "initial_state = #{initial_state};"
+      end
+
+      jscode = <<-JS
         function() {
-          initial_state = #{initial_state};
+          #{js_initial_state}
           return React.#{func}(React.createElement(#{component}, #{react_props}));
         }()
       JS
-      
-      context(initial_state).eval(jscode).html_safe
+
+      context.eval(jscode).html_safe
+
     rescue ExecJS::ProgramError => e
       raise PrerenderError.new(component, react_props, e)
     end

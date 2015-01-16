@@ -5,9 +5,12 @@ module React
       # Render a UJS-type HTML tag annotated with data attributes, which
       # are used by react_ujs to actually instantiate the React component
       # on the client.
-      #
-      def react_component(name, args = {}, options = {}, initial_state={}, &block)
-        React::Renderer.initial_state(initial_state)
+      def react_component(name, args = {}, options = {}, initial_state = nil, &block)
+
+        if initial_state
+          React::Renderer.initial_state(initial_state)
+        end
+
         if options[:prerender] == true
           args[:prerender] = true
         else
@@ -27,6 +30,8 @@ module React
         
         # remove internally used properties so they aren't rendered to DOM
         [:tag, :prerender].each{|prop| html_options.delete(prop)}
+
+        #abort html_tag.inspect
         
         content_tag(html_tag, '', html_options, &block)
       end
