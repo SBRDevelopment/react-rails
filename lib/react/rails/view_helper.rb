@@ -11,6 +11,8 @@ module React
           React::Renderer.initial_state(initial_state)
         end
 
+        # Sets prerender = true always because it's critical to the project
+        options[:prerender] = true
         if options[:prerender] == true
           args[:prerender] = true
         else
