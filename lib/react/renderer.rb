@@ -104,7 +104,7 @@ module React
       react_props = React::Renderer.react_props(args)
 
       func = "renderToString"
-      if args[:prerender] == true
+      if args.is_a?(Hash) and args[:prerender] == true
         func = "renderToStaticMarkup"
       end
 
