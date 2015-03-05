@@ -12,14 +12,12 @@ module React
         end
 
         # Sets prerender = true always because it's critical to the project
-        options[:prerender] = true
-        if options[:prerender] == true
-          args[:prerender] = true
-        else
-          args[:prerender] = false
-        end
-
         options = {:tag => options} if options.is_a?(Symbol)
+        if !options.has_key?(:prerender)
+          options[:prerender] = false
+        end
+        args[:prerender] = options[:prerender] == true
+          
         block = Proc.new{concat React::Renderer.render(name, args)} if options[:prerender] == true
 
         html_options = options.reverse_merge(:data => {})
