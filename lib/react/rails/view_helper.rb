@@ -15,7 +15,6 @@ module React
           args = JSON.parse(args)
         end
 
-        # Sets prerender = true always because it's critical to the project
         options = {:tag => options} if options.is_a?(Symbol)
         if !options.has_key?(:prerender)
           options[:prerender] = false
