@@ -11,29 +11,29 @@ module React
           React::Renderer.initial_state(initial_state)
         end
 
-        # Sets prerender = true always because it's critical to the project
-        options[:prerender] = true
-        if options[:prerender] == true
-          args[:prerender] = true
-        else
-          args[:prerender] = false
+        if args.is_a?(String)
+          args = JSON.parse(args)
         end
 
         options = {:tag => options} if options.is_a?(Symbol)
+        if !options.has_key?(:prerender)
+          options[:prerender] = false
+        end
+        args[:prerender] = options[:prerender] == true
+          
         block = Proc.new{concat React::Renderer.render(name, args)} if options[:prerender] == true
 
         html_options = options.reverse_merge(:data => {})
         html_options[:data].tap do |data|
           data[:react_class] = name
-          data[:react_props] = React::Renderer.react_props(args) unless args.empty?
+          # remove internally used properties so they aren't rendered to DOM
+          data[:react_props] = React::Renderer.react_props(args.except!(:prerender)) unless args.empty?
         end
 
         html_tag = html_options[:tag] || :div
-        
+          
         # remove internally used properties so they aren't rendered to DOM
-        [:tag, :prerender].each{|prop| html_options.delete(prop)}
-
-        #abort html_tag.inspect
+        html_options.except!(:tag, :prerender, "prerender")
         
         content_tag(html_tag, '', html_options, &block)
       end

@@ -47,10 +47,6 @@ module React
     end
 
     def self.reset_combined_js!
-      #path = "tmp.js"
-      #File.open(path, "w+") do |f|
-      #  f.write(setup_combined_js)
-      #end
       @@combined_js = setup_combined_js
     end
 
@@ -83,34 +79,18 @@ module React
       @@state = state
     end
 
-    #def self.logInFile(content)
-    #  filecontent = ""
-    #  File.open("test.txt",'r') do |fileb|
-    #    while c = fileb.gets
-    #      filecontent = "#{filecontent}#{c}"
-    #    end
-    #  end
-    #  File.open("test.txt",'w') do |filea|
-    #      filea.puts "#{filecontent}\n****************************************************************\n****************************************************************\n#{content}"
-    #  end
-    #end
-
     def render(component, args={})
-      # sends prerender flag as prop to the react component to
       if @@state
         initial_state = React::Renderer.react_props(@@state)
       end
 
+      # sends prerender flag as prop to the react component to
       react_props = React::Renderer.react_props(args)
 
       func = "renderToString"
-      if args[:prerender] == true
+      if args.is_a?(Hash) and args[:prerender] == true
         func = "renderToStaticMarkup"
       end
-
-      #if component != "SBR.Page"
-      #  abort component.inspect
-      #end
 
       js_initial_state = ""
       if initial_state
